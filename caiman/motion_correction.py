@@ -543,7 +543,7 @@ class MotionCorrect(object):
             del big_mov
             return fname_tot
         else:
-            return cm.movie(m_reg)
+            return cm.movie(m_reg, fr=Y.fr)
 
 #%%
 def apply_shift_iteration(img, shift, border_nan:bool=False, border_type=cv2.BORDER_REFLECT):
