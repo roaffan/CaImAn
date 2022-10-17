@@ -994,7 +994,7 @@ def get_file_size(file_name, var_name_hdf5='mov'):
                 tffl = tifffile.TiffFile(file_name)
                 siz = tffl.series[0].shape
                 T, dims = siz[0], siz[1:]
-            elif extension in ('.avi', '.mkv'):
+            elif extension in ('.avi', '.mkv', '.mp4'):
                 cap = cv2.VideoCapture(file_name)
                 dims = [0, 0]
                 try:
