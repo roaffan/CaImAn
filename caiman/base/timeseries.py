@@ -5,6 +5,7 @@ Class representing a time series.
 """
 
 import cv2
+import skvideo.io
 from datetime import datetime
 from dateutil.tz import tzlocal
 import h5py
@@ -231,7 +232,37 @@ class timeseries(np.ndarray):
             for d in data:
                 vw.write(cv2.cvtColor(d, cv2.COLOR_GRAY2BGR))
             vw.release()
+            
+        elif extension == '.mp4':
+            if q_max is None or q_min is None:
+                data = self.astype(np.uint8)
+            else:
+                if q_max < 100:
+                    maxmov = np.nanpercentile(self[::max(1, len(self) // 100)], q_max)
+                else:
+                    maxmov = np.nanmax(self)
+                if q_min > 0:
+                    minmov = np.nanpercentile(self[::max(1, len(self) // 100)], q_min)
+                else:
+                    minmov = np.nanmin(self)
+                data = 255 * (self - minmov) / (maxmov - minmov)
+                np.clip(data, 0, 255, data)
+                data = data.astype(np.uint8)
 
+            vw = skvideo.io.FFmpegWriter(
+                file_name,
+                inputdict={"-r": f"{int(self.fr)}"},
+                outputdict={
+                    "-vcodec": "libx264",
+                    "-crf": "0",
+                    "-preset": "veryslow",
+                    "-r": f"{int(self.fr)}",
+                },
+            )
+            for d in data:
+                vw.writeFrame(cv2.cvtColor(d, cv2.COLOR_GRAY2BGR))
+            vw.close()
+            
         elif extension == '.mat':
             if self.file_name[0] is not None:
                 f_name = self.file_name
