@@ -1550,22 +1550,24 @@ def load(file_name: Union[str, List[str]],
 
                 input_arr = np.squeeze(input_arr)
 
-        elif extension in ('.avi', '.mkv'):      # load video file
+        elif extension in ('.avi', '.mkv', '.mp4'):      # load video file
             cap = cv2.VideoCapture(file_name)
 
             try:
                 length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
                 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+		fr = int(cap.get(cv2.CAP_PROP_FPS))
             except:
                 logging.info('Roll back to opencv 2')
                 length = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
                 width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
                 height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+		fr = int(cap.get(cv2.cv.CV_CAP_PROP_FPS))
 
             cv_failed = False
-            dims = [length, height, width]                     # type: ignore # a list in one block and a tuple in another
-            if length == 0 or width == 0 or height == 0:       #CV failed to load
+            dims = [length, height, width]                                # type: ignore # a list in one block and a tuple in another
+            if length == 0 or width == 0 or height == 0 or fr == 0:       # CV failed to load
                 cv_failed = True
             if subindices is not None:
                 if not isinstance(subindices, list):
